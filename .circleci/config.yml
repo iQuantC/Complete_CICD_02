@@ -21,8 +21,9 @@ jobs:
             export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux-x64
             curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux-x64.zip
             unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-            export PATH=$SONAR_SCANNER_HOME/bin:$PATH
-            export SONAR_SCANNER_OPTS="-server"
+            ls $SONAR_SCANNER_HOME/bin
+            # export PATH=$SONAR_SCANNER_HOME/bin:$PATH
+            # export SONAR_SCANNER_OPTS="-server"
       - run:
           name: Run SonarCloud Scan
           command: sonar-scanner -Dsonar.projectKey=circleci-org_circlecicd -Dsonar.organization=circleci-org -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
