@@ -53,7 +53,7 @@ jobs:
           name: Scan Docker image with Trivy
           command: |
             docker pull aquasec/trivy:latest
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL $IMAGE_TAG
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL "$IMAGE_TAG"
 
 workflows:
   version: 2
