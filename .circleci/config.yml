@@ -9,10 +9,27 @@ jobs:
       - run: 
           name: Install NPM dependencies
           command: npm install
+  sonarCloud_analysis:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - run: 
+          name: Install SonarScanner
+          command: npm install -g sonarqube-scanner
+      - run:
+          name: Run SonarCloud Scan
+          command: sonar-scanner -Dsonar.projectKey=circleci-org_circlecicd -Dsonar.organization=circleci-org -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
+
+
 
 workflows:
   version: 2
   deploy_workflow:
     jobs:
       - install_dependencies
+      - sonarCloud_analysis:
+          requires:
+            - install_dependencies
+
 
