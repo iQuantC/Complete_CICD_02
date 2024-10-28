@@ -48,7 +48,7 @@ jobs:
           name: Scan Docker image with Trivy
           command: |
             docker pull aquasec/trivy:latest
-            docker run --rm /var/run/docker.sock:/var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL $DOCKERHUB_USERNAME/circlecicd01:latest
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL $DOCKERHUB_USERNAME/circlecicd01:latest
 
 workflows:
   version: 2
