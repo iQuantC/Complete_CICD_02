@@ -58,7 +58,7 @@ workflows:
           requires:
             - install_dependencies
       - build_docker_image
-      - scan_docker_image
+      - scan_docker_image:
           requires:
             - build_docker_image
 
