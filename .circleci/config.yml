@@ -44,7 +44,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Authenticate Trivy with GitHub Container Registry using PAT
-          command: echo $GITHUB_PAT | trivy --token=$GITHUB_PAT
+          command: echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
       - run: 
           name: Scan Docker image with Trivy
           command: trivy image --severity HIGH,CRITICAL $DOCKERHUB_USERNAME/circlecicd01:latest
@@ -59,3 +59,9 @@ workflows:
             - install_dependencies
       - build_docker_image
       - scan_docker_image
+          requires:
+            - build_docker_image
+
+
+
+
