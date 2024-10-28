@@ -41,15 +41,19 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
+      - run: 
+          name: Define Image Tag
+          command: |
+            export IMAGE_TAG="$DOCKERHUB_USERNAME/circlecicd01:latest"
+            echo "IMAGE_TAG=$IMAGE_TAG" >> $BASH_ENV
       - run:
           name: Build Docker Image
-          command: docker build -t $DOCKERHUB_USERNAME/circlecicd01:latest .
+          command: docker build -t $IMAGE_TAG .
       - run: 
           name: Scan Docker image with Trivy
           command: |
             docker pull aquasec/trivy:latest
-            docker images
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL $DOCKERHUB_USERNAME/circlecicd01:latest
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL $IMAGE_TAG
 
 workflows:
   version: 2
