@@ -30,6 +30,7 @@ jobs:
     docker:
       - image: docker:20.10.7
     steps:
+      - setup_docker
       - checkout
       - run:
           name: Build Docker Image
@@ -44,5 +45,5 @@ workflows:
       - sonarCloud_analysis:
           requires:
             - install_dependencies
-      - build_docker_image
+      - setup_docker
 
