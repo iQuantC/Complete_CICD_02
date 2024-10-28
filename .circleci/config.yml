@@ -48,7 +48,7 @@ jobs:
             echo "IMAGE_TAG=$IMAGE_TAG" >> $BASH_ENV
       - run:
           name: Build Docker Image
-          command: docker build -t $IMAGE_TAG .
+          command: docker build -t "$IMAGE_TAG" .
       - run: 
           name: Scan Docker image with Trivy
           command: |
