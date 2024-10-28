@@ -36,6 +36,15 @@ jobs:
           name: Build Docker Image
           command: docker build -t $DOCKERHUB_USERNAME/circlecicd01:latest .
 
+  scan_docker_image:
+    docker:
+      - image: aquasec/trivy:latest
+    steps: 
+      - checkout
+      - setup_remote_docker
+      - run: 
+          name: Scan Docker image with Trivy
+          command: trivy image --severity HIGH,CRITICAL $DOCKERHUB_USERNAME/circlecicd01:latest
 
 workflows:
   version: 2
@@ -46,4 +55,4 @@ workflows:
           requires:
             - install_dependencies
       - build_docker_image
-
+      - scan_docker_image
