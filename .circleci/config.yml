@@ -26,7 +26,16 @@ jobs:
             ls $SONAR_SCANNER_HOME/bin #check if sonar-scanner binary is present here
             sonar-scanner -Dsonar.organization=circlecicd -Dsonar.projectKey=circlecicd_circlecicd01  -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
 
-  build_docker_image:
+  docker_auth:
+    docker:
+      - image: docker:20.10.7
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Authenticate with GHCR using PAT
+          command: echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
+
+  build_and_scan_docker_image_with_Trivy:
     docker:
       - image: docker:20.10.7
     steps:
@@ -35,26 +44,11 @@ jobs:
       - run:
           name: Build Docker Image
           command: docker build -t $DOCKERHUB_USERNAME/circlecicd01:latest .
-
-  docker_auth:
-    docker:
-      - image: docker:20.10.7
-    steps:
-      - setup_remote_docker
-      - run: 
-          name: Authenticate with GHCR using PAT
-          command: echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
-
-
-  scan_docker_image:
-    docker:
-      - image: aquasec/trivy:latest
-    steps: 
-      - checkout
-      - setup_remote_docker
       - run: 
           name: Scan Docker image with Trivy
-          command: trivy image --severity HIGH,CRITICAL $DOCKERHUB_USERNAME/circlecicd01:latest
+          command: |
+            docker pull aquasec/trivy:latest
+            docker run --rm /var/run/docker.sock:/var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL $DOCKERHUB_USERNAME/circlecicd01:latest
 
 workflows:
   version: 2
@@ -64,14 +58,11 @@ workflows:
       - sonarCloud_analysis:
           requires:
             - install_dependencies
-      - build_docker_image
       - docker_auth:
-          requires: 
-            - build_docker_image
-      - scan_docker_image:
+          requires:
+            - sonarCloud_analysis
+      - build_and_scan_docker_image_with_Trivy:
           requires:
             - docker_auth
-
-
 
 
