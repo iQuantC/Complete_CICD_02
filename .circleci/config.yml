@@ -42,9 +42,9 @@ jobs:
       - image: docker:20.10.7
     steps:
       - setup_remote_docker
-        # - checkout
+      - checkout
       - run: 
-          name: Check local images
+          name: Checking images locally
           command: docker images
       - run:
           name: Push Image to DockerHub
