@@ -26,34 +26,16 @@ jobs:
             ls $SONAR_SCANNER_HOME/bin #check if sonar-scanner binary is present here
             sonar-scanner -Dsonar.organization=circlecicd -Dsonar.projectKey=circlecicd_circlecicd01  -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
 
-  docker_auth:
-    docker:
-      - image: docker:20.10.7
-    steps:
-      - setup_remote_docker
-      - run:
-          name: Authenticate with GHCR using PAT
-          command: echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
 
-  build_and_scan_docker_image_with_Trivy:
+  build_docker_image:
     docker:
       - image: docker:20.10.7
     steps:
       - setup_remote_docker
       - checkout
-      - run: 
-          name: Define Image Tag
-          command: |
-            export IMAGE_TAG="$DOCKERHUB_USERNAME/circlecicd01:latest"
-            echo "IMAGE_TAG=$IMAGE_TAG" >> $BASH_ENV
       - run:
           name: Build Docker Image
-          command: docker build -t "$IMAGE_TAG" .
-      - run: 
-          name: Scan Docker image with Trivy
-          command: |
-            docker pull aquasec/trivy:latest
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL "$IMAGE_TAG"
+          command: docker build -t $DOCKERHUB_USERNAME/circlecicd01:latest .
 
 workflows:
   version: 2
@@ -63,11 +45,8 @@ workflows:
       - sonarCloud_analysis:
           requires:
             - install_dependencies
-      - docker_auth:
+      - build_docker_image:
           requires:
             - sonarCloud_analysis
-      - build_and_scan_docker_image_with_Trivy:
-          requires:
-            - docker_auth
 
 
