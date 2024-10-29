@@ -37,6 +37,18 @@ jobs:
           name: Build Docker Image
           command: docker build -t $DOCKERHUB_USERNAME/circlecicd01:latest .
 
+  push_dockerhub:
+    docker:
+      - image: docker:20.10.7
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Push Image to DockerHub
+          command: |
+            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin 
+            docker push $DOCKERHUB_USERNAME/circlecicd01:latest
+
 workflows:
   version: 2
   deploy_workflow:
@@ -48,5 +60,8 @@ workflows:
       - build_docker_image:
           requires:
             - sonarCloud_analysis
+      - push_dockerhub:
+          requires:
+            - build_docker_image
 
 
