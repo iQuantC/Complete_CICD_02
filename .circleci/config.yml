@@ -39,6 +39,7 @@ jobs:
       - run: 
           name: Trivy Scan
           command: |
+            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker pull aquasec/trivy:latest
             docker run --rm -v /var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
       - run:
