@@ -33,9 +33,21 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
+      - restore_cache:
+          keys:
+            - trivy-db-v1-{{ .Environment.CIRCLE_SHA1 }}
+            - trivy-db-v1
       - run:
           name: Build Docker Image
           command: docker build -t $DOCKERHUB_USERNAME/circlecicd01:latest .
+      - run: 
+          name: Update Trivy DB
+          command: trivy image --download-db-only
+
+      - save_cache:
+          key: trivy-db-v1-{{ .Environment.CIRCLE_SHA1 }}
+          paths: 
+            - /root/.cache/trivy
       - run: 
           name: Trivy Scan
           command: |
