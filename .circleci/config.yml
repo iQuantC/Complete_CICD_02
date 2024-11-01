@@ -1,10 +1,5 @@
 version: 2.1
 
-executors:
-  eks-executor:
-    docker:
-      - image: circleci/aws-cli:2.0.0
-
 jobs:
   install_dependencies:
     docker:
@@ -34,8 +29,7 @@ jobs:
 
   build_scan_push_docker_image:
     docker:
-      #- image: docker:20.10.7
-      - image: cimg/python:3.10.2
+      - image: docker:20.10.7
     steps:
       - setup_remote_docker
       - checkout
@@ -51,27 +45,33 @@ jobs:
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker push "$DOCKERHUB_USERNAME/circlecicd01:latest"
       - run:
+          name: Trivy Scan
+          command: |
+            echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
+            docker pull aquasec/trivy:latest
+            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
+ 
+  deploy_to_eks_cluster:
+    docker:
+      - image: cimg/python:3.10.2
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
           name: Install kubectl
           command: |
-            #apk update
-            #apk add curl
             curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
             chmod +x ./kubectl
             sudo mv ./kubectl /usr/local/bin/kubectl
-            # kubectl version
-      - run: 
+      - run:
           name: Install AWS CLI
           command: |
-            pip3 install awscli --upgrade 
+            pip3 install awscli --upgrade
             aws --version
-            #apk add unzip
-            #curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            #unzip awscliv2.zip
-            #./aws/install
       - run:
           name: Update Kubeconfig for EKS Cluster
           command: |
-            aws eks update-kubeconfig --name iquant-eks-cluster --region $AWS_REGION 
+            aws eks update-kubeconfig --name iquant-eks-cluster --region $AWS_REGION
       - run:
           name: Deploy to Kubernetes
           command: |
@@ -83,39 +83,6 @@ jobs:
             kubectl rollout status deployment/iquant-app-deployment -n default
             kubectl rollout status service/iquant-app-service -n default
 
-      - run:
-          name: Trivy Scan
-          command: |
-            echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
-            docker pull aquasec/trivy:latest
-            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
-  
-  #  deploy_to_eks:
-    #executor: eks-executor
-    # docker: 
-    #  - image: circleci/aws-cli:2.0.0
-    #steps: 
-    #  - checkout
-    #  - run:
-    #      name: Install kubectl
-    #      command: |
-    #        curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
-    #        chmod +x ./kubectl
-    #        sudo mv ./kubectl /usr/local/bin/kubectlcurl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
-    #  - run: 
-    #      name: Update Kubeconfig for EKS Cluster
-    #      command: |
-    #        aws eks update-kubeconfig --name iquant-eks-cluster --region $AWS_REGION
-    #  - run:
-    #      name: Deploy to Kubernetes
-    #      command: |
-    #        kubectl apply -f k8s-manifests/deployment.yaml
-    #        kubectl apply -f k8s-manifests/service.yaml
-    #  - run:
-    #      name: Verify Deployment
-    #      command: |
-    #        kubectl rollout status deployment/iquant-app-deployment 
-    #        kubectl rollout status service/iquant-app-service
           
 workflows:
   version: 2
@@ -125,7 +92,9 @@ workflows:
       - sonarCloud_analysis:
           requires:
             - install_dependencies
-      - build_scan_push_docker_image #:
-        #requires:
-        #   - sonarCloud_analysis
-              # - deploy_to_eks
+      - build_scan_push_docker_image:
+          requires:
+            - sonarCloud_analysis
+      - deploy_to_eks_cluster:
+          requires:
+            build_scan_push_docker_image
