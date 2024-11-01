@@ -39,9 +39,10 @@ jobs:
       - run: 
           name: Trivy Scan
           command: |
+            echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
             docker pull aquasec/trivy:latest
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
-            echo $GITHUB_PAT | trivy --token=$GITHUB_PAT
+            #echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
             # - run: 
             #name: Authenticate Trivy with GHCR
             #command: echo $GITHUB_PAT | trivy --token=$GITHUB_PAT
