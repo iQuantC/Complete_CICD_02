@@ -50,6 +50,27 @@ jobs:
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker push "$DOCKERHUB_USERNAME/circlecicd01:latest"
       - run:
+          name: Install kubectl
+          command: |
+            curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectlcurl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+      - run:
+          name: Update Kubeconfig for EKS Cluster
+          command: |
+            aws eks update-kubeconfig --name iquant-eks-cluster --region $AWS_REGION
+      - run:
+          name: Deploy to Kubernetes
+          command: |
+            kubectl apply -f k8s-manifests/deployment.yaml
+            kubectl apply -f k8s-manifests/service.yaml
+      - run:
+          name: Verify Deployment
+          command: |
+            kubectl rollout status deployment/iquant-app-deployment
+            kubectl rollout status service/iquant-app-service
+
+      - run:
           name: Trivy Scan
           command: |
             echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
