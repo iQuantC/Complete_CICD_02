@@ -60,6 +60,7 @@ jobs:
             docker pull datree/datree
             cat ~/k8s-manifests/*.yaml | docker run -i datree/datree test -
 
+
 workflows:
   version: 2
   deploy_workflow:
