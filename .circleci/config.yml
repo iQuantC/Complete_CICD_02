@@ -81,9 +81,7 @@ jobs:
           name: Verify Deployment
           command: |
             kubectl rollout status deployment/iquant-app-deployment -n default
-            kubectl rollout status service/iquant-app-service -n default
-
-          
+            
 workflows:
   version: 2
   deploy_workflow:
