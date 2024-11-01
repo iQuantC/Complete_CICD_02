@@ -44,7 +44,13 @@ jobs:
           command: |
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker push "$DOCKERHUB_USERNAME/circlecicd01:latest"
-
+      - run: 
+          name: Trivy Scan
+          command: |
+            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+            docker pull aquasec/trivy:latest
+            docker run --rm -v /var/run/docker.sock image aquasec/trivy:latest --severity HIGH,CRITICAL $DOCKERHUB_USERNAME/circlecicd01:latest
+ 
 workflows:
   version: 2
   deploy_workflow:
