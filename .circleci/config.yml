@@ -54,6 +54,7 @@ jobs:
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker pull aquasec/trivy:latest
             docker run --rm -v /var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
+            trivy image --download-db-only
       - run:
           name: Update Trivy DB
           command: trivy image --download-db-only
