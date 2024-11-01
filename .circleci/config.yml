@@ -67,7 +67,7 @@ jobs:
       - run:
           name: Update Kubeconfig for EKS Cluster
           command: |
-            aws eks update-kubeconfig --name iquant-eks-cluster --region $AWS_REGION
+            /usr/local/bin/aws eks update-kubeconfig --name iquant-eks-cluster --region $AWS_REGION
       - run:
           name: Deploy to Kubernetes
           command: |
