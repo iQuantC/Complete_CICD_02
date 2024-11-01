@@ -51,9 +51,14 @@ jobs:
             docker push "$DOCKERHUB_USERNAME/circlecicd01:latest"
   validate_k8s_manifests:
     docker:
-      - image: datree/datree
+      - image: circleci/python:3.8
     steps:
       - checkout
+      - run: 
+          name: Install Datree
+          command: |
+            curl https://get.datree.io | /bin/bash
+            export PATH=$PATH:/home/circleci/.datree
       - run:
           name: Validate Kubernetes Manifests with Datree
           command: datree test k8s-manifests/*.yaml
