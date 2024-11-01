@@ -51,21 +51,13 @@ jobs:
             docker pull aquasec/trivy:latest
             docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
 
-  validate_k8s_manifests:
+  test:
     docker:
-      - image: circleci/node:latest
+      - image: circleci/node
     steps:
       - checkout
-      - setup_remote_docker
-      - run: 
-          name: Validate Kubernetes Manifests with Datree
-          command: |
-            #sudo apt-get install -y curl
-            curl https://get.datree.io | /bin/bash
-            datree test k8s-manifests/deployment.yaml
-            # docker pull datree/datree
-            # cat ~/k8s-manifests/*.yaml | docker run -v /var/run/docker.sock:/var/run/docker.sock -i datree/datree test -
-
+      - run: curl https://get.datree.io | /bin/bash
+      - run: datree test ~/.datree/k8s-demo.yaml
 
 workflows:
   version: 2
@@ -78,5 +70,4 @@ workflows:
       - build_scan_push_docker_image:
           requires:
             - sonarCloud_analysis
-      - validate_k8s_manifests
-
+      - test
