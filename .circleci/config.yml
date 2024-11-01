@@ -95,6 +95,4 @@ workflows:
       - build_scan_push_docker_image:
           requires:
             - sonarCloud_analysis
-      - deploy_to_eks_cluster:
-          requires:
-            - build_scan_push_docker_image
+      - deploy_to_eks_cluster
