@@ -57,7 +57,9 @@ jobs:
             docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
   
   deploy_to_eks:
-    executor: eks-executor
+    #executor: eks-executor
+    docker: 
+      - image: circleci/aws-cli:2.0.0
     steps: 
       - checkout
       - run:
