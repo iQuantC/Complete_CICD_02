@@ -41,6 +41,10 @@ jobs:
           command: |
             docker pull aquasec/trivy:latest
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
+            echo $GITHUB_PAT | trivy --token=$GITHUB_PAT
+            # - run: 
+            #name: Authenticate Trivy with GHCR
+            #command: echo $GITHUB_PAT | trivy --token=$GITHUB_PAT
       - run:
           name: Checking images locally
           command: docker images
