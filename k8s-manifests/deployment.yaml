@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: iquant-app
-        image: $DOCKERHUB_USERNAME/circlecicd01:latest 
+        image: iquantc/circlecicd01:latest 
         ports:
         - containerPort: 3000
 
