@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: actions-app-deployment
+  name: iquant-app-deployment
   labels:
-    app: actions-app
+    app: iquant-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: actions-app
+      app: iquant-app
   template:
     metadata:
       labels:
-        app: actions-app
+        app: iquant-app
     spec:
       containers:
-      - name: actions-app
-        image: 358966077154.dkr.ecr.us-east-1.amazonaws.com/actions-cicd:latest
+      - name: iquant-app
+        image: iquantc/circlecicd01:latest 
         ports:
         - containerPort: 3000
 

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: actions-app-service
+  name: iquant-app-service
 spec:
   selector:
-    app: actions-app
+    app: iquant-app
   ports:
     - protocol: TCP
       port: 80
