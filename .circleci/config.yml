@@ -41,7 +41,7 @@ jobs:
           command: |
             echo $GITHUB_PAT | docker login ghcr.io -u iQuantC --password-stdin
             docker pull aquasec/trivy:latest
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
+            docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest --severity HIGH,CRITICAL image $DOCKERHUB_USERNAME/circlecicd01:latest
       - run:
           name: Checking images locally
           command: docker images
@@ -58,8 +58,11 @@ jobs:
       - run: 
           name: Validate Kubernetes Manifests with Datree
           command: |
-            docker pull datree/datree
-            cat ~/k8s-manifests/*.yaml | docker run -v /var/run/docker.sock:/var/run/docker.sock -i datree/datree test -
+            apt-get install -y curl
+            curl https://get.datree.io | /bin/bash
+            datree test k8s-manifests/deployment.yaml
+            # docker pull datree/datree
+            # cat ~/k8s-manifests/*.yaml | docker run -v /var/run/docker.sock:/var/run/docker.sock -i datree/datree test -
 
 
 workflows:
