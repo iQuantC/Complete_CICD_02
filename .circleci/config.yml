@@ -59,7 +59,7 @@ jobs:
       - run: 
           name: Validate Kubernetes Manifests with Datree
           command: |
-            sudo apt-get install -y curl
+            #sudo apt-get install -y curl
             curl https://get.datree.io | /bin/bash
             datree test k8s-manifests/deployment.yaml
             # docker pull datree/datree
